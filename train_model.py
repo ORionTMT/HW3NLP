@@ -38,54 +38,47 @@ class DependencyModel(Module):
     return logits
 
 
-def train(model, loader): 
-  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-  model.to(device)
-  loss_function = CrossEntropyLoss(reduction='mean')
-
-  LEARNING_RATE = 0.01 
-  optimizer = torch.optim.Adagrad(params=model.parameters(), lr=LEARNING_RATE)
-
-  tr_loss = 0 
-  tr_steps = 0
-
-  # put model in training mode
-  model.train()
- 
-
-  correct = 0 
-  total =  0 
-  for idx, batch in enumerate(loader):
- 
-    inputs, targets = batch
-    inputs, targets = inputs.to(device), targets.to(device)
- 
-    predictions = model(inputs)
-
-    loss = loss_function(predictions, targets)
-    tr_loss += loss.item()
-
-    #print("Batch loss: ", loss.item()) # Helpful for debugging, maybe 
-
-    tr_steps += 1
+def train(model, loader):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
     
-    if idx % 1000==0:
-      curr_avg_loss = tr_loss / tr_steps
-      print(f"Current average loss: {curr_avg_loss}")
-
-    # To compute training accuracy for this epoch 
-    correct += sum(torch.argmax(logits, dim=1) == torch.argmax(targets, dim=1))
-    total += len(inputs)
-      
-    # Run the backward pass to update parameters 
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-
-
-  epoch_loss = tr_loss / tr_steps
-  acc = correct / total
-  print(f"Training loss epoch: {epoch_loss},   Accuracy: {acc}")
+    loss_function = CrossEntropyLoss(reduction='mean')
+    LEARNING_RATE = 0.01
+    optimizer = torch.optim.Adagrad(params=model.parameters(), lr=LEARNING_RATE)
+    
+    tr_loss = 0
+    tr_steps = 0
+    correct = 0
+    total = 0
+    
+    # put model in training mode
+    model.train()
+    
+    for idx, batch in enumerate(loader):
+        inputs, targets = batch
+        inputs, targets = inputs.to(device), targets.to(device)
+        
+        predictions = model(inputs)
+        loss = loss_function(predictions, torch.argmax(targets, dim=1))
+        tr_loss += loss.item()
+        tr_steps += 1
+        
+        if idx % 1000 == 0:
+            curr_avg_loss = tr_loss / tr_steps
+            print(f"Current average loss: {curr_avg_loss}")
+        
+        # Compute training accuracy for this batch
+        correct += (torch.argmax(predictions, dim=1) == torch.argmax(targets, dim=1)).sum().item()
+        total += len(inputs)
+        
+        # Run the backward pass to update parameters
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    
+    epoch_loss = tr_loss / tr_steps
+    acc = correct / total
+    print(f"Training loss epoch: {epoch_loss}, Accuracy: {acc}")
 
 
 if __name__ == "__main__":
