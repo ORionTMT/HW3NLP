@@ -115,27 +115,37 @@ class FeatureExtractor(object):
         return vocab     
 
     def get_input_representation(self, words, pos, state):
-        # TODO: Write this method for Part 2
         input_representation = []
-        
+
         # Add word indices for stack
         for i in range(-1, -4, -1):
             if i >= -len(state.stack):
                 stack_word = words[state.stack[i]]
-                input_representation.append(self.word_vocab.get(stack_word, self.word_vocab["<UNK>"]))
+                stack_pos = pos[state.stack[i]]
+                if stack_pos == "CD":
+                    input_representation.append(self.word_vocab["<CD>"])
+                elif stack_pos == "NNP" or stack_pos == "NNPS":
+                    input_representation.append(self.word_vocab["<NNP>"])
+                else:
+                    input_representation.append(self.word_vocab.get(stack_word.lower(), self.word_vocab["<UNK>"]))
             else:
                 input_representation.append(self.word_vocab["<NULL>"])
-        
+
         # Add word indices for buffer
         for i in range(-1, -4, -1):
             if i >= -len(state.buffer):
                 buffer_word = words[state.buffer[i]]
-                input_representation.append(self.word_vocab.get(buffer_word, self.word_vocab["<UNK>"]))
+                buffer_pos = pos[state.buffer[i]]
+                if buffer_pos == "CD":
+                    input_representation.append(self.word_vocab["<CD>"])
+                elif buffer_pos == "NNP" or buffer_pos == "NNPS":
+                    input_representation.append(self.word_vocab["<NNP>"])
+                else:
+                    input_representation.append(self.word_vocab.get(buffer_word.lower(), self.word_vocab["<UNK>"]))
             else:
                 input_representation.append(self.word_vocab["<NULL>"])
-        
-        return np.array(input_representation)
 
+        return np.array(input_representation)
     def get_output_representation(self, output_pair):
         # TODO: Write this method for Part 2
         one_hot = np.zeros(91)
