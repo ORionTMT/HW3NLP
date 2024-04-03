@@ -127,7 +127,10 @@ class FeatureExtractor(object):
                 elif stack_pos == "NNP" or stack_pos == "NNPS":
                     input_representation.append(self.word_vocab["<NNP>"])
                 else:
-                    input_representation.append(self.word_vocab.get(stack_word.lower(), self.word_vocab["<UNK>"]))
+                    if stack_word is not None:
+                        input_representation.append(self.word_vocab.get(stack_word.lower(), self.word_vocab["<UNK>"]))
+                    else:
+                        input_representation.append(self.word_vocab["<UNK>"])
             else:
                 input_representation.append(self.word_vocab["<NULL>"])
 
@@ -141,7 +144,10 @@ class FeatureExtractor(object):
                 elif buffer_pos == "NNP" or buffer_pos == "NNPS":
                     input_representation.append(self.word_vocab["<NNP>"])
                 else:
-                    input_representation.append(self.word_vocab.get(buffer_word.lower(), self.word_vocab["<UNK>"]))
+                    if buffer_word is not None:
+                        input_representation.append(self.word_vocab.get(buffer_word.lower(), self.word_vocab["<UNK>"]))
+                    else:
+                        input_representation.append(self.word_vocab["<UNK>"])
             else:
                 input_representation.append(self.word_vocab["<NULL>"])
 
