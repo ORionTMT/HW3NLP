@@ -116,11 +116,32 @@ class FeatureExtractor(object):
 
     def get_input_representation(self, words, pos, state):
         # TODO: Write this method for Part 2
-        return np.zeros(6)
+        input_representation = []
+        
+        # Add word indices for stack
+        for i in range(-1, -4, -1):
+            if i >= -len(state.stack):
+                stack_word = words[state.stack[i]]
+                input_representation.append(self.word_vocab.get(stack_word, self.word_vocab["<UNK>"]))
+            else:
+                input_representation.append(self.word_vocab["<NULL>"])
+        
+        # Add word indices for buffer
+        for i in range(-1, -4, -1):
+            if i >= -len(state.buffer):
+                buffer_word = words[state.buffer[i]]
+                input_representation.append(self.word_vocab.get(buffer_word, self.word_vocab["<UNK>"]))
+            else:
+                input_representation.append(self.word_vocab["<NULL>"])
+        
+        return np.array(input_representation)
 
-    def get_output_representation(self, output_pair):  
+    def get_output_representation(self, output_pair):
         # TODO: Write this method for Part 2
-        return np.zeros(91)
+        one_hot = np.zeros(91)
+        index = self.output_labels[output_pair]
+        one_hot[index] = 1
+        return one_hot
 
      
     
