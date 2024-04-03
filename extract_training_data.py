@@ -2,7 +2,7 @@ from conll_reader import DependencyStructure, conll_reader
 from collections import defaultdict
 import copy
 import sys
-import keras
+
 import numpy as np
 
 class State(object):
