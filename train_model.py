@@ -12,7 +12,7 @@ from extract_training_data import FeatureExtractor
 class DependencyDataset(Dataset):
 
   def __init__(self, inputs_filename, output_filename):
-    self.inputs = np.load(input_filename)
+    self.inputs = np.load(inputs_filename)
     self.outputs = np.load(output_filename)
 
   def __len__(self): 
