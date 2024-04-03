@@ -25,16 +25,21 @@ class DependencyModel(Module):
 
   def __init__(self, word_types, outputs):
     super(DependencyModel, self).__init__()
-    # TODO: complete for part 3
+    self.embedding = Embedding(num_embeddings=word_types, embedding_dim=128)
+    self.hidden = Linear(in_features=768, out_features=128)
+    self.output = Linear(in_features=128, out_features=outputs)
 
   def forward(self, inputs):
-
-    # TODO: complete for part 3
-    return torch.zeros(inputs.shape(0), 91)  # replace this line
+    embedded = self.embedding(inputs)
+    flattened = embedded.view(embedded.shape[0], -1)
+    hidden = relu(self.hidden(flattened))
+    logits = self.output(hidden)
+    return logits
 
 
 def train(model, loader): 
-
+  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+  model.to(device)
   loss_function = CrossEntropyLoss(reduction='mean')
 
   LEARNING_RATE = 0.01 
@@ -52,6 +57,7 @@ def train(model, loader):
   for idx, batch in enumerate(loader):
  
     inputs, targets = batch
+    inputs, targets = inputs.to(device), targets.to(device)
  
     predictions = model(torch.LongTensor(inputs))
 
@@ -97,6 +103,8 @@ if __name__ == "__main__":
 
 
     model = DependencyModel(len(extractor.word_vocab), len(extractor.output_labels))
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
     dataset = DependencyDataset(sys.argv[1], sys.argv[2])
     loader = DataLoader(dataset, batch_size = 16, shuffle = True)
