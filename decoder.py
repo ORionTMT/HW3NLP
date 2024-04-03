@@ -21,23 +21,49 @@ class Parser(object):
         self.output_labels = dict([(index, action) for (action, index) in extractor.output_labels.items()])
 
     def parse_sentence(self, words, pos):
-
-        state = State(range(1,len(words)))
+        state = State(range(1, len(words)))
         state.stack.append(0)
 
-        # TODO: Write the body of this loop for part 5
         while state.buffer:
-          pass # replace
+            # Extract features for the current state
+            features = self.extractor.get_input_representation(words, pos, state)
+            features_tensor = torch.tensor(features, dtype=torch.long).unsqueeze(0)
 
+            # Use the model to predict the scores for each transition
+            scores = self.model(features_tensor)
+            
+            # Get the list of possible transitions
+            possible_transitions = []
+            for transition_idx, transition in self.output_labels.items():
+                if transition[0] == "shift":
+                    if len(state.buffer) > 1 or len(state.stack) == 0:
+                        possible_transitions.append((transition_idx, transition))
+                elif transition[0] == "left_arc":
+                    if len(state.stack) > 0 and state.stack[-1] != 0:
+                        possible_transitions.append((transition_idx, transition))
+                elif transition[0] == "right_arc":
+                    if len(state.stack) > 0:
+                        possible_transitions.append((transition_idx, transition))
 
-  
+            # Sort the possible transitions by their scores in descending order
+            possible_transitions.sort(key=lambda x: scores[0][x[0]], reverse=True)
+
+            # Select the highest-scoring permitted transition
+            for transition_idx, transition in possible_transitions:
+                if transition[0] == "shift":
+                    state.shift()
+                    break
+                elif transition[0] == "left_arc":
+                    state.left_arc(transition[1])
+                    break
+                elif transition[0] == "right_arc":
+                    state.right_arc(transition[1])
+                    break
 
         result = DependencyStructure()
-        for p,c,r in state.deps:
-            result.add_deprel(DependencyEdge(c,words[c],pos[c],p, r))
-
+        for p, c, r in state.deps:
+            result.add_deprel(DependencyEdge(c, words[c], pos[c], p, r))
         return result
-
 
 if __name__ == "__main__":
 
