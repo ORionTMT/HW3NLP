@@ -60,7 +60,7 @@ def train(model, loader):
     inputs, targets = batch
     inputs, targets = inputs.to(device), targets.to(device)
  
-    predictions = model(torch.LongTensor(inputs))
+    predictions = model(inputs)
 
     loss = loss_function(predictions, targets)
     tr_loss += loss.item()
