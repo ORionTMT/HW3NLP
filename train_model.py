@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import torch
+import os
 
 from torch.nn import Module, Linear, Embedding, CrossEntropyLoss 
 from torch.nn.functional import relu
@@ -101,7 +102,7 @@ if __name__ == "__main__":
 
     extractor = FeatureExtractor(word_vocab_f, pos_vocab_f)
 
-
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     model = DependencyModel(len(extractor.word_vocab), len(extractor.output_labels))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
