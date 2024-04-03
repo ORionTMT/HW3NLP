@@ -101,12 +101,12 @@ if __name__ == "__main__":
     model.to(device)
 
     dataset = DependencyDataset(sys.argv[1], sys.argv[2])
-    loader = DataLoader(dataset, batch_size = 32, shuffle = True)
+    loader = DataLoader(dataset, batch_size = 16, shuffle = True)
 
     print("Done loading data")
 
     # Now train the model
-    for i in range(10): 
+    for i in range(5): 
       train(model, loader)
 
 
